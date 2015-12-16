@@ -1,11 +1,11 @@
-# go-diskache
+# diskache
 
 Lightweight Golang disk cache.
 
 ## Get
 
 ```Shell
-$ go get github.com/GitbookIO/go-diskache
+$ go get github.com/GitbookIO/diskache
 ```
 
 ## Use
@@ -13,7 +13,7 @@ $ go get github.com/GitbookIO/go-diskache
 ```Go
 import (
     "fmt"
-    "github.com/GitbookIO/go-diskache"
+    "github.com/GitbookIO/diskache"
 )
 
 // Create an instance
