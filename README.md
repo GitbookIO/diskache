@@ -10,7 +10,7 @@ $ go get github.com/GitbookIO/go-diskache
 
 ## Use
 
-```Golang
+```Go
 import (
     "fmt"
     "github.com/GitbookIO/go-diskache"
