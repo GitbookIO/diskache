@@ -3,11 +3,15 @@ package diskache
 import (
 	"bytes"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	TMP_DIR     = "tmp"
+)
 
 func randStringBytes(n int) (string, []byte) {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -18,11 +22,18 @@ func randStringBytes(n int) (string, []byte) {
 	return string(b), b
 }
 
+func cleanDir() {
+	os.RemoveAll(TMP_DIR)
+}
+
 // Test Set-ting and Get-ting a value in cache
 func TestSetGet(t *testing.T) {
+	// Cleanup
+	defer cleanDir()
+
 	// Create an instance
 	opts := &Opts{
-		Directory: "tmp",
+		Directory: TMP_DIR,
 	}
 
 	dc, err := New(opts)
@@ -50,9 +61,12 @@ func TestSetGet(t *testing.T) {
 
 // Test concurrent Set by multiple go routines
 func TestConcurrent(t *testing.T) {
+	// Cleanup
+	defer cleanDir()
+
 	// Create an instance
 	opts := &Opts{
-		Directory: "tmp",
+		Directory: TMP_DIR,
 	}
 
 	dc, err := New(opts)
@@ -83,9 +97,12 @@ func TestConcurrent(t *testing.T) {
 
 // Benchmark Set operations
 func BenchmarkSet(b *testing.B) {
+	// Cleanup
+	defer cleanDir()
+
 	// Create an instance
 	opts := &Opts{
-		Directory: "tmp",
+		Directory: TMP_DIR,
 	}
 
 	dc, err := New(opts)
@@ -106,9 +123,12 @@ func BenchmarkSet(b *testing.B) {
 
 // Benchmark Get operations
 func BenchmarkGet(b *testing.B) {
+	// Cleanup
+	defer cleanDir()
+
 	// Create an instance
 	opts := &Opts{
-		Directory: "tmp",
+		Directory: TMP_DIR,
 	}
 
 	dc, err := New(opts)
