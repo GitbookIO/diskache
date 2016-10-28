@@ -7,13 +7,14 @@ import (
 	"log"
 	"os"
 	"path"
-	"sync"
+
+	"github.com/GitbookIO/syncgroup"
 )
 
 type Diskache struct {
 	directory string
 	items     int
-	sync.RWMutex
+	lock      *syncgroup.MutexGroup
 }
 
 type Opts struct {
@@ -27,25 +28,29 @@ type Stats struct {
 
 func New(opts *Opts) (*Diskache, error) {
 	// Create Diskache directory
-	err := os.MkdirAll(opts.Directory, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(opts.Directory, os.ModePerm); err != nil {
 		return nil, err
 	}
 
 	// Create Diskache instance
-	dc := &Diskache{}
-	dc.directory = opts.Directory
+	dc := &Diskache{
+		directory: opts.Directory,
+		lock:      syncgroup.NewMutexGroup(),
+	}
 
 	return dc, nil
 }
 
 func (dc *Diskache) Set(key string, data []byte) error {
+	// Get encoded key
+	filename := dc.buildFilename(key)
+
 	// Lock for writing
-	dc.Lock()
-	defer dc.Unlock()
+	dc.lock.Lock(filename)
+	defer dc.lock.Unlock(filename)
 
 	// Open file
-	file, err := os.Create(dc.buildFilename(key))
+	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
@@ -61,12 +66,15 @@ func (dc *Diskache) Set(key string, data []byte) error {
 }
 
 func (dc *Diskache) Get(key string) ([]byte, bool) {
+	// Get encoded key
+	filename := dc.buildFilename(key)
+
 	// Lock for reading
-	dc.RLock()
-	defer dc.RUnlock()
+	dc.lock.RLock(filename)
+	defer dc.lock.RUnlock(filename)
 
 	// Open file
-	file, err := os.Open(dc.buildFilename(key))
+	file, err := os.Open(filename)
 	if err != nil {
 		return nil, false
 	}
